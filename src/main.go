@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crud/src/controllers"
 	"crud/src/utils"
 	"log"
 
@@ -22,5 +23,9 @@ func main() {
 			"message": "pong",
 		})
 	})
+
+	r.POST("/create-user", controllers.UserCreation)
+	r.GET("/all-users", controllers.AllUser)
+
 	r.Run()
 }
