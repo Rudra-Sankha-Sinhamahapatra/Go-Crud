@@ -22,6 +22,10 @@ go get -u gorm.io/driver/postgres
 ```
 
 ```
+go run ./src/migrate/migrate.go  
+```
+
+```
  CompileDaemon -directory=./src -command="go run ./src/main.go"                                                                          
 ```
 
