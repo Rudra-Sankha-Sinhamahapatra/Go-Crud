@@ -24,3 +24,12 @@ go get -u gorm.io/driver/postgres
 ```
  CompileDaemon -directory=./src -command="go run ./src/main.go"                                                                          
 ```
+
+```
+docker exec -it <docker_db_name> psql -U postgres
+```
+
+**Lists all tables**
+```
+\dt 
+```
