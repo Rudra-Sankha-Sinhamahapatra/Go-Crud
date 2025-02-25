@@ -89,3 +89,18 @@ func DeleteUser(c *gin.Context) {
 		"deletedUser": user,
 	})
 }
+
+func UserById(c *gin.Context) {
+	var user models.User
+	id := c.Param("id")
+
+	if err := utils.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "User fetched Successfully",
+		"user":    user,
+	})
+}
