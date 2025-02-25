@@ -1,0 +1,227 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Simple CRUD API using Go, GORM, PostgreSQL, and Gin",
+        "version": "1.0",
+        "title": "Go CRUD API"
+    },
+    "host": "localhost:8000",
+    "basePath": "/",
+    "schemes": ["http"],
+    "paths": {
+        "/": {
+            "get": {
+                "summary": "Health check",
+                "produces": ["application/json"],
+                "responses": {
+                    "200": { 
+                        "description": "API is up",
+                        "examples": {
+                            "application/json": { "message": "API is up" }
+                        }
+                    }
+                }
+            }
+        },
+        "/create-user": {
+            "post": {
+                "summary": "Create a new user",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "user",
+                        "schema": { "$ref": "#/definitions/User" },
+                        "examples": {
+                            "application/json": {
+                                "Name": "John Doe",
+                                "Email": "john@example.com",
+                                "Password": "123456",
+                                "Pincode": 10001,
+                                "City": "New York",
+                                "State": "NY",
+                                "Country": "USA"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User created successfully",
+                        "examples": {
+                            "application/json": { "message": "User created" }
+                        }
+                    }
+                }
+            }
+        },
+        "/getById/{id}": {
+            "get": {
+                "summary": "Get a user by ID",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User fetched successfully",
+                        "schema": { "$ref": "#/definitions/UserResponse" },
+                        "examples": {
+                            "application/json": {
+                                "id": 1,
+                                "name": "John Doe",
+                                "email": "john@example.com",
+                                "city": "New York",
+                                "state": "NY",
+                                "country": "USA"
+                            }
+                        }
+                    },
+                    "404": { 
+                        "description": "User not found",
+                        "examples": {
+                            "application/json": { "error": "User not found" }
+                        }
+                    }
+                }
+            }
+        },
+        "/all-users": {
+            "get": {
+                "summary": "Get all users",
+                "produces": ["application/json"],
+                "responses": {
+                    "200": {
+                        "description": "All users fetched",
+                        "schema": {
+                            "type": "array",
+                            "items": { "$ref": "#/definitions/UserResponse" }
+                        },
+                        "examples": {
+                            "application/json": [
+                                {
+                                    "id": 1,
+                                    "name": "John Doe",
+                                    "email": "john@example.com",
+                                    "city": "New York",
+                                    "state": "NY",
+                                    "country": "USA"
+                                },
+                                {
+                                    "id": 2,
+                                    "name": "Jane Smith",
+                                    "email": "jane@example.com",
+                                    "city": "Los Angeles",
+                                    "state": "CA",
+                                    "country": "USA"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/update-user/{id}": {
+            "put": {
+                "summary": "Update a user by ID",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "integer"
+                    },
+                    {
+                        "in": "body",
+                        "name": "user",
+                        "schema": { "$ref": "#/definitions/User" },
+                        "examples": {
+                            "application/json": {
+                                "Name": "John Doe Updated",
+                                "Email": "john.doe.updated@example.com",
+                                "City": "San Francisco",
+                                "State": "CA",
+                                "Country": "USA"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": { 
+                        "description": "User updated",
+                        "examples": {
+                            "application/json": { "message": "User updated successfully" }
+                        }
+                    },
+                    "404": { 
+                        "description": "User not found",
+                        "examples": {
+                            "application/json": { "error": "User not found" }
+                        }
+                    }
+                }
+            }
+        },
+        "/delete-user/{id}": {
+            "delete": {
+                "summary": "Delete a user by ID",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User deleted",
+                        "examples": {
+                            "application/json": { "message": "User deleted successfully" }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "examples": {
+                            "application/json": { "error": "User not found" }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "User": {
+            "type": "object",
+            "properties": {
+                "Name": { "type": "string" },
+                "Email": { "type": "string" },
+                "Password": { "type": "string" },
+                "Pincode": { "type": "integer" },
+                "City": { "type": "string" },
+                "State": { "type": "string" },
+                "Country": { "type": "string" }
+            }
+        },
+        "UserResponse": {
+            "type": "object",
+            "properties": {
+                "id": { "type": "integer" },
+                "name": { "type": "string" },
+                "email": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "country": { "type": "string" }
+            }
+        }
+    }
+}
