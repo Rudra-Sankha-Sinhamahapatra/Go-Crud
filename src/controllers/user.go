@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"crud/src/models"
+	"crud/src/services"
 	"crud/src/utils"
 	"net/http"
 
@@ -16,6 +17,15 @@ func UserCreation(c *gin.Context) {
 		return
 	}
 
+	token, err := services.GenerateJWT(user)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to generate JWT Token",
+		})
+		return
+	}
+
 	result := utils.DB.Create(&user)
 
 	if result.Error != nil {
@@ -26,6 +36,7 @@ func UserCreation(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User Created Successfully",
 		"user":    user,
+		"token":   token,
 	})
 }
 
@@ -70,7 +81,7 @@ func UpdateUser(c *gin.Context) {
 	})
 }
 
-func DeleteUser(c *gin.Context) {
+func SoftDeleteUser(c *gin.Context) {
 	var user models.User
 	id := c.Param("id")
 
@@ -85,7 +96,27 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message":     "User Deleted Successfully",
+		"message":     "User Soft Deleted Successfully",
+		"deletedUser": user,
+	})
+}
+
+func HardDeleteUser(c *gin.Context) {
+	var user models.User
+	id := c.Param("id")
+
+	if err := utils.DB.First(&user, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not Found"})
+		return
+	}
+
+	if err := utils.DB.Unscoped().Delete(&user, id).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":     "User Hard Deleted Successfully",
 		"deletedUser": user,
 	})
 }

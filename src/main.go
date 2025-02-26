@@ -33,7 +33,8 @@ func main() {
 	r.GET("/getById/:id", controllers.UserById)
 	r.GET("/all-users", controllers.AllUser)
 	r.PUT("/update-user/:id", controllers.UpdateUser)
-	r.DELETE("/delete-user/:id", controllers.DeleteUser)
+	r.DELETE("/soft/delete-user/:id", controllers.SoftDeleteUser)
+	r.DELETE("/hard/delete-user/:id", controllers.HardDeleteUser)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Run()

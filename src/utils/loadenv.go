@@ -11,6 +11,7 @@ import (
 type Config struct {
 	ServerPort int
 	DBURL      string
+	JWT_SECRET string
 }
 
 var AppConfig Config
@@ -34,9 +35,17 @@ func LoadEnv() (Config, error) {
 	if db == "" {
 		db = "postgresql://postgres:mysecretpassword@localhost:5432/postgres"
 	}
+
+	JWT_SECRET := os.Getenv("JWT_SECRET")
+
+	if JWT_SECRET == "" {
+		JWT_SECRET = "SECRET"
+	}
+
 	AppConfig = Config{
 		ServerPort: port,
 		DBURL:      db,
+		JWT_SECRET: JWT_SECRET,
 	}
 
 	return AppConfig, nil
