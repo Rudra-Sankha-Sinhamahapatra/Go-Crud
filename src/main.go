@@ -22,6 +22,14 @@ func main() {
 
 	utils.InitDB()
 
+	// Gin mode based on environment
+	if utils.AppConfig.ENV == "production" {
+		log.Println("Running in production mode")
+		gin.SetMode(gin.ReleaseMode)
+	} else {
+		log.Println("Running in development mode")
+	}
+
 	r := gin.Default()
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -36,7 +44,14 @@ func main() {
 	r.PUT("/update-user/:id", controllers.UpdateUser)
 	r.DELETE("/soft/delete-user/:id", controllers.SoftDeleteUser)
 	r.DELETE("/hard/delete-user/:id", controllers.HardDeleteUser)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	// Only register Swagger in development mode
+	if utils.AppConfig.ENV == "development" {
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		log.Println("Swagger UI enabled at /swagger/index.html")
+	} else {
+		log.Println("Swagger UI disabled in production mode")
+	}
 
 	r.Run()
 }

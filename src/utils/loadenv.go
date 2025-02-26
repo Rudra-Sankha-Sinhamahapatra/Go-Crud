@@ -12,6 +12,7 @@ type Config struct {
 	ServerPort int
 	DBURL      string
 	JWT_SECRET string
+	ENV        string
 }
 
 var AppConfig Config
@@ -42,10 +43,16 @@ func LoadEnv() (Config, error) {
 		JWT_SECRET = "SECRET"
 	}
 
+	env := os.Getenv("ENV")
+	if env == "" {
+		env = "production"
+	}
+
 	AppConfig = Config{
 		ServerPort: port,
 		DBURL:      db,
 		JWT_SECRET: JWT_SECRET,
+		ENV:        env,
 	}
 
 	return AppConfig, nil
