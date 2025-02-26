@@ -23,6 +23,7 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
     go get -u github.com/gin-gonic/gin
     go get -u gorm.io/gorm
     go get -u gorm.io/driver/postgres
+    go get -u github.com/golang-jwt/jwt/v5
     ```
 
 3. Set up the environment variables:
@@ -35,6 +36,11 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
     go run ./src/migrate/migrate.go
     ```
 
+5. Clean up the module dependencies:
+    ```sh
+    go mod tidy
+    ```
+
 ## Usage
 
 1. Start the application:
@@ -42,16 +48,21 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
     CompileDaemon -directory=./src -command="go run ./src/main.go"
     ```
 
-2. The application will be available at `http://localhost:8080`.
+2. The application will be available at `http://localhost:8000`.
 
 ## API Endpoints
 
 - `GET /`: Health check endpoint.
-- `POST /create-user`: Create a new user.
+- `POST /create-user`: Create a new user and generate a JWT token.
 - `GET /getById/:id`: Get a user by ID.
 - `GET /all-users`: Get all users.
 - `PUT /update-user/:id`: Update a user by ID.
-- `DELETE /delete-user/:id`: Delete a user by ID.
+- `DELETE /soft/delete-user/:id`: Soft delete a user by ID.
+- `DELETE /hard/delete-user/:id`: Hard delete a user by ID.
+
+## JWT Token Generation
+
+When a new user is created using the `POST /create-user` endpoint, a JWT token is generated and returned in the response. This token can be used for authentication in subsequent requests.
 
 ## Contributing
 
