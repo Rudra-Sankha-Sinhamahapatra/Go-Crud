@@ -30,6 +30,7 @@ func main() {
 	})
 
 	r.POST("/create-user", controllers.UserCreation)
+	r.POST("/login", controllers.UserLogin)
 	r.GET("/getById/:id", controllers.UserById)
 	r.GET("/all-users", controllers.AllUser)
 	r.PUT("/update-user/:id", controllers.UpdateUser)

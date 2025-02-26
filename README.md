@@ -2,6 +2,14 @@
 
 This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
 
+## Features
+
+- User registration with password hashing
+- JWT-based authentication
+- User login with password verification
+- CRUD operations for users
+- Soft and hard delete options
+
 ## Prerequisites
 
 - Go 1.23.4 or later
@@ -12,7 +20,7 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/yourusername/Go-Crud.git
+    git clone https://github.com/Rudra-Sankha-Sinhamahapatra/Go-Crud
     cd Go-Crud
     ```
 
@@ -24,6 +32,7 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
     go get -u gorm.io/gorm
     go get -u gorm.io/driver/postgres
     go get -u github.com/golang-jwt/jwt/v5
+    go get -u golang.org/x/crypto/bcrypt
     ```
 
 3. Set up the environment variables:
@@ -54,11 +63,27 @@ This is a simple CRUD application built with Go, GORM, PostgreSQL, and Gin.
 
 - `GET /`: Health check endpoint.
 - `POST /create-user`: Create a new user and generate a JWT token.
+- `POST /login`: Authenticate a user and generate a JWT token.
 - `GET /getById/:id`: Get a user by ID.
 - `GET /all-users`: Get all users.
 - `PUT /update-user/:id`: Update a user by ID.
 - `DELETE /soft/delete-user/:id`: Soft delete a user by ID.
 - `DELETE /hard/delete-user/:id`: Hard delete a user by ID.
+- `GET /swagger/*any`: Access the Swagger documentation UI.
+
+
+
+## Security Features
+
+### Password Hashing
+All user passwords are securely hashed using bcrypt before being stored in the database. This ensures that even if the database is compromised, actual passwords remain secure.
+
+### User Authentication
+The application uses JWT (JSON Web Tokens) for authentication. When a user registers or logs in, a JWT token is generated and returned, which should be included in subsequent requests for authentication.
+
+### Email Uniqueness
+The system enforces email uniqueness, preventing duplicate user registrations with the same email address.
+
 
 ## JWT Token Generation
 
@@ -74,7 +99,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Future Plans
 
-- **User Roles & Authentication**: Add support for admins, JWT-based authentication, or OAuth.
+
+- **User Roles & Authentication**: Expand the current JWT authentication with role-based access control.
 - **New Entities & Relationships**: Introduce new models (e.g., comments, orders) and link them via foreign keys.
 - **Pagination & Search**: Implement query parameters for advanced filtering and searching.
 - **Docker & Containerization**: Containerize the app for easier deployment.
