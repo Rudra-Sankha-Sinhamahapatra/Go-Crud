@@ -25,7 +25,7 @@
         },
         "/create-user": {
             "post": {
-                "summary": "Create a new user",
+                "summary": "Create a new user and generate a JWT token",
                 "consumes": ["application/json"],
                 "produces": ["application/json"],
                 "parameters": [
@@ -48,9 +48,12 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User created successfully",
+                        "description": "User created successfully and JWT token generated",
                         "examples": {
-                            "application/json": { "message": "User created" }
+                            "application/json": { 
+                                "message": "User created",
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
                         }
                     }
                 }
@@ -187,6 +190,62 @@
                         "description": "User deleted",
                         "examples": {
                             "application/json": { "message": "User deleted successfully" }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "examples": {
+                            "application/json": { "error": "User not found" }
+                        }
+                    }
+                }
+            }
+        },
+        "/soft/delete-user/{id}": {
+            "delete": {
+                "summary": "Soft delete a user by ID",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User soft deleted",
+                        "examples": {
+                            "application/json": { "message": "User soft deleted successfully" }
+                        }
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "examples": {
+                            "application/json": { "error": "User not found" }
+                        }
+                    }
+                }
+            }
+        },
+        "/hard/delete-user/{id}": {
+            "delete": {
+                "summary": "Hard delete a user by ID",
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User hard deleted",
+                        "examples": {
+                            "application/json": { "message": "User hard deleted successfully" }
                         }
                     },
                     "404": {
