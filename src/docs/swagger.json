@@ -25,7 +25,7 @@
         },
         "/create-user": {
             "post": {
-                "summary": "Create a new user and generate a JWT token",
+                "summary": "Create a new user with hashed password and generate a JWT token",
                 "consumes": ["application/json"],
                 "produces": ["application/json"],
                 "parameters": [
@@ -48,11 +48,86 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "User created successfully and JWT token generated",
+                        "description": "User created successfully with hashed password and JWT token generated",
                         "examples": {
                             "application/json": { 
-                                "message": "User created",
+                                "message": "User Created Successfully",
+                                "user": {
+                                    "id": 1,
+                                    "name": "John Doe",
+                                    "email": "john@example.com",
+                                    "city": "New York",
+                                    "state": "NY",
+                                    "country": "USA"
+                                },
                                 "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Email already exists",
+                        "examples": {
+                            "application/json": { "error": "Email already exists" }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "examples": {
+                            "application/json": { 
+                                "error": "Failed to hash password" 
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary": "Authenticate a user and generate a JWT token",
+                "consumes": ["application/json"],
+                "produces": ["application/json"],
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "credentials",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "Email": { "type": "string" },
+                                "Password": { "type": "string" }
+                            }
+                        },
+                        "examples": {
+                            "application/json": {
+                                "Email": "john@example.com",
+                                "Password": "123456"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "examples": {
+                            "application/json": { 
+                                "message": "Login successful",
+                                "user": {
+                                    "id": 1,
+                                    "name": "John Doe",
+                                    "email": "john@example.com",
+                                    "city": "New York",
+                                    "state": "NY",
+                                    "country": "USA"
+                                },
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Authentication failed",
+                        "examples": {
+                            "application/json": { 
+                                "error": "Invalid email or password" 
                             }
                         }
                     }
@@ -132,7 +207,7 @@
         },
         "/update-user/{id}": {
             "put": {
-                "summary": "Update a user by ID",
+                "summary": "Update a user by ID (with password hashing if provided)",
                 "consumes": ["application/json"],
                 "produces": ["application/json"],
                 "parameters": [
@@ -150,6 +225,7 @@
                             "application/json": {
                                 "Name": "John Doe Updated",
                                 "Email": "john.doe.updated@example.com",
+                                "Password": "newpassword123",
                                 "City": "San Francisco",
                                 "State": "CA",
                                 "Country": "USA"
@@ -161,13 +237,30 @@
                     "200": { 
                         "description": "User updated",
                         "examples": {
-                            "application/json": { "message": "User updated successfully" }
+                            "application/json": { 
+                                "message": "User Updated Successfully",
+                                "user": {
+                                    "id": 1,
+                                    "name": "John Doe Updated",
+                                    "email": "john.doe.updated@example.com",
+                                    "city": "San Francisco",
+                                    "state": "CA",
+                                    "country": "USA"
+                                },
+                                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                            }
                         }
                     },
                     "404": { 
                         "description": "User not found",
                         "examples": {
                             "application/json": { "error": "User not found" }
+                        }
+                    },
+                    "409": {
+                        "description": "Email already exists",
+                        "examples": {
+                            "application/json": { "error": "Email already exists, please try a different email" }
                         }
                     }
                 }
@@ -217,13 +310,23 @@
                     "200": {
                         "description": "User soft deleted",
                         "examples": {
-                            "application/json": { "message": "User soft deleted successfully" }
+                            "application/json": { 
+                                "message": "User Soft Deleted Successfully",
+                                "deletedUser": {
+                                    "id": 1,
+                                    "name": "John Doe",
+                                    "email": "john@example.com",
+                                    "city": "New York",
+                                    "state": "NY",
+                                    "country": "USA"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "examples": {
-                            "application/json": { "error": "User not found" }
+                            "application/json": { "error": "User not Found" }
                         }
                     }
                 }
@@ -245,13 +348,23 @@
                     "200": {
                         "description": "User hard deleted",
                         "examples": {
-                            "application/json": { "message": "User hard deleted successfully" }
+                            "application/json": { 
+                                "message": "User Hard Deleted Successfully",
+                                "deletedUser": {
+                                    "id": 1,
+                                    "name": "John Doe",
+                                    "email": "john@example.com",
+                                    "city": "New York",
+                                    "state": "NY",
+                                    "country": "USA"
+                                }
+                            }
                         }
                     },
                     "404": {
                         "description": "User not found",
                         "examples": {
-                            "application/json": { "error": "User not found" }
+                            "application/json": { "error": "User not Found" }
                         }
                     }
                 }
@@ -280,6 +393,13 @@
                 "city": { "type": "string" },
                 "state": { "type": "string" },
                 "country": { "type": "string" }
+            }
+        },
+        "LoginRequest": {
+            "type": "object",
+            "properties": {
+                "Email": { "type": "string" },
+                "Password": { "type": "string" }
             }
         }
     }
