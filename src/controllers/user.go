@@ -4,6 +4,7 @@ import (
 	"crud/src/models"
 	"crud/src/services"
 	"crud/src/utils"
+	"crud/src/validators"
 	"net/http"
 	"strings"
 
@@ -11,11 +12,26 @@ import (
 )
 
 func UserCreation(c *gin.Context) {
-	var user models.User
+	var userInput validators.UserInput
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	if err := c.ShouldBindJSON(&userInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if err := userInput.Validate(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	user := models.User{
+		Name:     userInput.Name,
+		Email:    userInput.Email,
+		Password: userInput.Password,
+		Pincode:  userInput.Pincode,
+		City:     userInput.City,
+		State:    userInput.State,
+		Country:  userInput.Country,
 	}
 
 	hashedPassword, err := services.HashPassword(user.Password)
@@ -83,31 +99,45 @@ func AllUser(c *gin.Context) {
 }
 
 func UpdateUser(c *gin.Context) {
-	var user models.User
 	id := c.Param("id")
 
-	if err := utils.DB.First(&user, id).Error; err != nil {
+	var existingUser models.User
+
+	if err := utils.DB.First(&existingUser, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var userInput validators.UserInput
+	if err := c.ShouldBindJSON(&userInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if user.Password != "" {
-		hashedPassword, err := services.HashPassword(user.Password)
+	if err := userInput.Validate(); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	existingUser.Name = userInput.Name
+	existingUser.Email = userInput.Email
+	existingUser.Pincode = userInput.Pincode
+	existingUser.City = userInput.City
+	existingUser.State = userInput.State
+	existingUser.Country = userInput.Country
+
+	if userInput.Password != "" {
+		hashedPassword, err := services.HashPassword(userInput.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": "Failed to hash password",
 			})
 			return
 		}
-		user.Password = hashedPassword
+		existingUser.Password = hashedPassword
 	}
 
-	token, err := services.GenerateJWT(user)
+	token, err := services.GenerateJWT(existingUser)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -116,7 +146,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err := utils.DB.Save(&user).Error; err != nil {
+	if err := utils.DB.Save(&existingUser).Error; err != nil {
 		if isUniqueConstraintError(err) {
 			c.JSON(http.StatusConflict, gin.H{"error": "Email already exists, please try a different email"})
 		} else {
@@ -127,7 +157,7 @@ func UpdateUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User Updated Successfully",
-		"user":    user,
+		"user":    existingUser,
 		"token":   token,
 	})
 }
@@ -188,23 +218,25 @@ func UserById(c *gin.Context) {
 }
 
 func UserLogin(c *gin.Context) {
-	var loginRequest struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+	var loginInput validators.LoginInput
+
+	if err := c.ShouldBindJSON(&loginInput); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
-	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+	if err := loginInput.Validate(); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	var user models.User
-	if err := utils.DB.Where("email = ?", loginRequest.Email).First(&user).Error; err != nil {
+	if err := utils.DB.Where("email = ?", loginInput.Email).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email ,account doesn't exists"})
 		return
 	}
 
-	if err := services.VerifyPassword(user.Password, loginRequest.Password); err != nil {
+	if err := services.VerifyPassword(user.Password, loginInput.Password); err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
